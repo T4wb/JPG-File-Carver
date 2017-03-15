@@ -20,9 +20,21 @@ namespace JPG_File_Carver
     /// </summary>
     public partial class MainWindow : Window
     {
+        private DocumentManager _documentManger;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            _documentManger = new DocumentManager();
+        }
+
+        private void OpenDocument(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (_documentManger.OpenDocument())
+            {
+                status.Text = "Document is loaded";
+            }
         }
     }
 }

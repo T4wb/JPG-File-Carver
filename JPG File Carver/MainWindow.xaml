@@ -8,6 +8,10 @@
         Title="JPG FC" 
         Height="250" Width="225" 
         ResizeMode="CanMinimize">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open"
+                        Executed="OpenDocument" />
+    </Window.CommandBindings>
     <DockPanel Margin="10 10">
         <StackPanel DockPanel.Dock="Top">
             <TextBlock x:Name="textBlock" 
@@ -24,9 +28,10 @@
                 4. Profit?
             </TextBlock>
             <Button x:Name="OpenFile" 
+                    Command="ApplicationCommands.Open"
                     Content="Open File" 
                     Margin="0 10"/>
-            <Button x:Name="CarveFile" 
+            <Button x:Name="CarveFile"
                     Content="Carve File" 
                     Margin="0 10" />
         </StackPanel>
@@ -35,10 +40,5 @@
                        Text="Nothing loaded..." 
                        TextWrapping="Wrap"/>
         </StatusBar>
-        <TextBlock x:Name="textBlock1" 
-                   Height="0" 
-                   TextWrapping="Wrap" 
-                   Text="TextBlock" 
-                   VerticalAlignment="Top"/>
     </DockPanel>
 </Window>

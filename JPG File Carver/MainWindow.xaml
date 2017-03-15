@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:JPG_File_Carver"
         mc:Ignorable="d"
-        Title="JPG File Carver" 
+        Title="JPG FC" 
         Height="250" Width="225" 
         ResizeMode="CanMinimize">
     <DockPanel Margin="10 10">

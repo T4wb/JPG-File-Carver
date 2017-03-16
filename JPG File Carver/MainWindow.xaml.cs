@@ -37,8 +37,21 @@ namespace JPG_File_Carver
             }
             else
             {
-                status.Text = "Nothing loaded...";
+                status.Text = "Nothing has been loaded...";
             }
+        }
+
+        private void CarveDocument(object sender, ExecutedRoutedEventArgs e)
+        {
+            if (_documentManger.CarveDocument())
+            {
+                status.Text = "Document has been carved";
+            }
+            else
+            {
+                status.Text = "Carving has failed";
+            }
+            
         }
     }
 }

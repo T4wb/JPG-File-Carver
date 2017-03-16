@@ -11,12 +11,15 @@
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open"
                         Executed="OpenDocument" />
+        <CommandBinding Command="ApplicationCommands.Save"
+                        Executed="CarveDocument" />
     </Window.CommandBindings>
     <DockPanel Margin="10 10">
         <StackPanel DockPanel.Dock="Top">
             <TextBlock x:Name="textBlock" 
                        TextWrapping="Wrap" 
-                       Background="Khaki">
+                       Background="Khaki"
+                       Padding="4">
                 Steps: 
                 <LineBreak />
                 1. Press the Open File button
@@ -32,6 +35,7 @@
                     Content="Open File" 
                     Margin="0 10"/>
             <Button x:Name="CarveFile"
+                    Command="ApplicationCommands.Save"
                     Content="Carve File" 
                     Margin="0 10" />
         </StackPanel>

@@ -13,7 +13,5 @@ namespace JPG_File_Carver
         public int SizeFile;
         public int SizeName;
         public int NameFile;
-       
-
     }
 }

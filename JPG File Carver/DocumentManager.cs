@@ -52,7 +52,7 @@ namespace JPG_File_Carver
 
                     _blockSize = int.Parse(hexvalue, System.Globalization.NumberStyles.HexNumber);
 
-                    // verdeel bestand in blocks van 4096 = 580 blocks?
+                    // verdeel bestand in blocks van 4096 = 579 blocks?
                     List<string> verdelingBestandBlocks = new List<string>();
                     string tempString = "";
                     br.BaseStream.Position = 0;
@@ -60,8 +60,7 @@ namespace JPG_File_Carver
                     int j;
                     for (j = 0; j < stream.Length; j++)
                     {
-
-                        byte[] xo = br.ReadBytes(_blockSize - 1);
+                        byte[] xo = br.ReadBytes(_blockSize);
 
                         foreach (byte x in xo)
                         {
@@ -69,7 +68,6 @@ namespace JPG_File_Carver
                         }
 
                         verdelingBestandBlocks.Add(tempString);
-
                         j += _blockSize;
                         tempString = "";
                     }
@@ -81,52 +79,32 @@ namespace JPG_File_Carver
                     // _fileBinary._fileMetaData.Hexadecimal = readFile(dlg, 0);
                     _fileBinary._fileDirectory.Hexadecimal = verdelingBestandBlocks[1];
 
-                    // set third block: file table
-                     _fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[2]);
+                    // set third block to 12th block: file table
+                    for (int k = 2; k < 12; k++)
+                    {
+                        _fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[k]);
+                    }
+
+                    // IndexTabel
+                    tempString = "";
+                    for (int x = 0; x < _fileBinary._fileTable.verdelingBestandBlocks[0].Length; x++)
+                    {
+                        
+                        if (x !=0 && x%8 == 0)
+                        {
+                            _fileBinary._fileTable.indexFileTable.Add(tempString);
+                            tempString = "";
+                        }
+
+                        tempString += _fileBinary._fileTable.verdelingBestandBlocks[0][x];
+                    }
 
                     // set other blocks: file data
-                    for (int k = 3; k < verdelingBestandBlocks.Count; k++)
+                    for (int k = 12; k < verdelingBestandBlocks.Count; k++)
                     {
                         _fileBinary._fileData.fileData.Add(verdelingBestandBlocks[k]);
                     }
-
-                    ////getSize of Metadata block in Blocks
-                    //hexvalue = null;
-                    //for (int i = 0x00004; i < 0x00008; i++)
-                    //{
-                    //    br.BaseStream.Position = i;
-                    //    string temp = br.ReadByte().ToString("X2");
-
-                    //    hexvalue += temp;
-                    //}
-
-                    ////getSize of File directory block in Blocks
-                    //hexvalue = null;
-                    //for (int i = 0x00009; i < 0x0000D; i++)
-                    //{
-                    //    br.BaseStream.Position = i;
-                    //    string temp = br.ReadByte().ToString("X2");
-
-                    //    hexvalue += temp;
-                    //}
-
-                    ////getSize of File table in Blocks
-                    //br.Close();
                 }
-
-                // To Do:
-
-                // set first block
-                // _fileBinary._fileMetaData.Hexadecimal = readFile(stream, 0);
-
-                // set second block
-                // _fileBinary._fileMetaData.Hexadecimal = readFile(dlg, 0);
-
-                // set third block
-                // _fileBinary._fileMetaData.Hexadecimal = readFile(dlg, 0);
-
-                // set other blocks
-                // ??
 
                 return true;
                 }
@@ -134,20 +112,26 @@ namespace JPG_File_Carver
             return false;
         }
 
-        //private string readFile(Stream stream, int pos)
-        //{
-        //    BinaryReader br = new BinaryReader(stream);
-        //    br.BaseStream.Position = pos;
-        //    byte[] xo = br.ReadBytes(_blockSize-1);
-        //    string testingBytes = null;
+        public bool CarveDocument()
+        {
+            // Carve File
+            //int firstBlock = 234;
+            //string byteAdress = _fileBinary._fileTable.indexFileTable[234];
+            string fileCarved = "";
+            int pointer = 234; // To do: get from FileMetaData
+            
+            while (pointer != 0)
+            {
+                //
+                fileCarved += _fileBinary._fileData.fileData[pointer-12];
 
-        //    foreach(byte x in xo)
-        //    {
-        //        testingBytes += x.ToString("X2");
-        //    }
+                // ga terug naar fileTable en ga daar vanuit index 0 naar de pointer
+                pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
+            }
 
-        //    br.Close();
-        //    return testingBytes;
-        //}
+            return true;
+        }
+
+        // Save document
     }
 }

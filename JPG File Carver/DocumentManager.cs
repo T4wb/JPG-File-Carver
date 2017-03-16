@@ -14,11 +14,11 @@ namespace JPG_File_Carver
     class DocumentManager
     {
         private string _currentFile;
-        private RichTextBox _textBox;
+        private List<Int32> _binaryStream;
 
         public DocumentManager()
         {
-
+            _binaryStream = new List<Int32>();
         }
 
         public bool OpenDocument()
@@ -34,13 +34,7 @@ namespace JPG_File_Carver
 
                 using (Stream stream = dlg.OpenFile())
                 {
-                    //TextRange range = new TextRange(
-                    //    _textBox.Document.ContentStart,
-                    //    _textBox.Document.ContentEnd
-                    //    );
-
-                    //range.Load(stream, DataFormats.Text);
-
+                    byte[] temp_binaryStream = new BinaryReader(stream).ReadBytes((int)stream.Length);
                 }
 
                 return true;

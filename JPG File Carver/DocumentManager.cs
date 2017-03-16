@@ -14,11 +14,14 @@ namespace JPG_File_Carver
     class DocumentManager
     {
         private string _currentFile;
-        private List<Int32> _binaryStream;
+        private List<Int32> _binaryStream; // nodig?
+
+        private FileBinary _fileBinary;
 
         public DocumentManager()
         {
             _binaryStream = new List<Int32>();
+            _fileBinary = new FileBinary();
         }
 
         public bool OpenDocument()
@@ -34,7 +37,13 @@ namespace JPG_File_Carver
 
                 using (Stream stream = dlg.OpenFile())
                 {
+                    // read file in binary
                     byte[] temp_binaryStream = new BinaryReader(stream).ReadBytes((int)stream.Length);
+
+                    // split into blocks; block size
+
+                    // write to objects  
+
                 }
 
                 return true;

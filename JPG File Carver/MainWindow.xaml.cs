@@ -35,6 +35,10 @@ namespace JPG_File_Carver
             {
                 status.Text = "Document is loaded";
             }
+            else
+            {
+                status.Text = "Nothing loaded...";
+            }
         }
     }
 }

@@ -8,5 +8,6 @@ namespace JPG_File_Carver
 {
     class FileData
     {
+        public List<string> fileData = new List<string>();
     }
 }

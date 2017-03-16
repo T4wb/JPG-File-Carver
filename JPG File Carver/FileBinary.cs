@@ -8,9 +8,17 @@ namespace JPG_File_Carver
 {
     class FileBinary
     {
-        private FileMetaData _fileMetaData;
-        private FileDirectory _fileDirectory;
-        private FileTable _fileTable;
-        private FileData _fileData;
+        public FileMetaData _fileMetaData;
+        public FileDirectory _fileDirectory;
+        public FileTable _fileTable;
+        public FileData _fileData;
+        
+        public FileBinary()
+        {
+            _fileMetaData = new FileMetaData();
+            _fileDirectory = new FileDirectory();
+            _fileTable = new FileTable();
+            _fileData = new FileData();
+        }
     }
 }

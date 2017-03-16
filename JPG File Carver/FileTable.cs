@@ -8,5 +8,6 @@ namespace JPG_File_Carver
 {
     class FileTable
     {
+        public List<string> verdelingBestandBlocks = new List<string>();
     }
 }

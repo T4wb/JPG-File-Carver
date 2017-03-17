@@ -41,7 +41,7 @@
         </StackPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <TextBlock x:Name="status" 
-                       Text="Nothing loaded..." 
+                       Text="Nothing has been loaded" 
                        TextWrapping="Wrap"/>
         </StatusBar>
     </DockPanel>

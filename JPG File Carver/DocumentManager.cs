@@ -131,7 +131,6 @@ namespace JPG_File_Carver
 
             return true;
         }
-
         // Save document
     }
 }

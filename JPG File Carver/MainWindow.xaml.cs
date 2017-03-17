@@ -31,21 +31,23 @@ namespace JPG_File_Carver
 
         private void OpenDocument(object sender, ExecutedRoutedEventArgs e)
         {
-            status.Text = "Trying to load...";
+            status.Text = "I'm trying to load it... one moment";
 
             if (_documentManger.OpenDocument())
             {
                 status.Text = "JPG file has been loaded";
+                CarveFile.IsEnabled = true;
             }
             else
             {
-                status.Text = "I Couldn't load the document. Is it in use? Please try again.";
+                status.Text = "I couldn't load the file. Is it in use?";
             }
         }
 
         private void CarveDocument(object sender, ExecutedRoutedEventArgs e)
         {
-            status.Text = "Trying to carve...";
+            status.Text = "I'm trying to carve it... one moment";
+            OpenFile.IsEnabled = false;
 
             if (_documentManger.CarveDocument())
             {
@@ -53,9 +55,11 @@ namespace JPG_File_Carver
             }
             else
             {
-                status.Text = "I couldn't carve the document :(";
+                status.Text = "I couldn't carve the file :(";
             }
-            
+
+            OpenFile.IsEnabled = true;
+            CarveFile.IsEnabled = false;
         }
     }
 }

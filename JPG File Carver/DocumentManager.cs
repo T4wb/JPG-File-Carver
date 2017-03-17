@@ -13,7 +13,7 @@ namespace JPG_File_Carver
 {
     class DocumentManager
     {
-        // 
+        // variables
         private string _currentFile;
 
         private FileBinary _fileBinary;
@@ -40,75 +40,21 @@ namespace JPG_File_Carver
             {
                 _currentFile = dlg.FileName;
 
+                // read file in binary
                 using (Stream stream = dlg.OpenFile())
                 {
-                    // read file in binary
-
-                    // getBlockSize in Bytes
+                    // gets blocksize in bytes
                     BinaryReader br = new BinaryReader(stream);
-                    string hexvalue = null;
-                    for (int i = 0x00000; i < 0x00004; i++)
-                    {
-                        br.BaseStream.Position = i;
-                        string temp = br.ReadByte().ToString("X2");
+                    string hexvalue = getBlockSize(br);
 
-                        hexvalue += temp;
-                    }
-
+                    // set the blocksize
                     _blockSize = int.Parse(hexvalue, System.Globalization.NumberStyles.HexNumber);
 
-                    // verdeel bestand in blocks van 4096 = 579 blocks?
-                    List<string> verdelingBestandBlocks = new List<string>();
-                    string tempString = "";
-                    br.BaseStream.Position = 0;
+                    // split fileblocks into the the value of _blocksize 
+                    List<string> formattedBlocks = splitBlocks(stream, br);
 
-                    int j;
-                    for (j = 0; j < stream.Length; j++)
-                    {
-                        byte[] xo = br.ReadBytes(_blockSize);
-
-                        foreach (byte x in xo)
-                        {
-                            tempString += x.ToString("X2");
-                        }
-
-                        verdelingBestandBlocks.Add(tempString);
-                        j += _blockSize;
-                        tempString = "";
-                    }
-
-                    // set first block
-                     _fileBinary._fileMetaData.Hexadecimal = verdelingBestandBlocks[0];
-
-                    // set second block
-                    // _fileBinary._fileMetaData.Hexadecimal = readFile(dlg, 0);
-                    _fileBinary._fileDirectory.Hexadecimal = verdelingBestandBlocks[1];
-
-                    // set third block to 12th block: file table
-                    for (int k = 2; k < 12; k++)
-                    {
-                        _fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[k]);
-                    }
-
-                    // IndexTabel
-                    tempString = "";
-                    for (int x = 0; x < _fileBinary._fileTable.verdelingBestandBlocks[0].Length; x++)
-                    {
-                        
-                        if (x !=0 && x%8 == 0)
-                        {
-                            _fileBinary._fileTable.indexFileTable.Add(tempString);
-                            tempString = "";
-                        }
-
-                        tempString += _fileBinary._fileTable.verdelingBestandBlocks[0][x];
-                    }
-
-                    // set other blocks: file data
-                    for (int k = 12; k < verdelingBestandBlocks.Count; k++)
-                    {
-                        _fileBinary._fileData.fileData.Add(verdelingBestandBlocks[k]);
-                    }
+                    // set the splitted blocks into _fileBinary
+                    setBlocks(formattedBlocks);
                 }
 
                 return true;
@@ -138,6 +84,80 @@ namespace JPG_File_Carver
             // To Do: file checking = begins with FF D8 && ENDS WITH FF D9? true+save document + open Document(folder) : false
             return true;
         }
-        // Save document
+
+        private static string getBlockSize(BinaryReader br)
+        {
+            string hexvalue = null;
+            for (int i = 0x00000; i < 0x00004; i++)
+            {
+                br.BaseStream.Position = i;
+                string temp = br.ReadByte().ToString("X2");
+
+                hexvalue += temp;
+            }
+
+            return hexvalue;
+        }
+
+        private List<string> splitBlocks(Stream stream, BinaryReader br)
+        {
+            List<string> verdelingBestandBlocks = new List<string>();
+            string tempString = "";
+            br.BaseStream.Position = 0;
+
+            int j;
+            for (j = 0; j < stream.Length; j++)
+            {
+                byte[] xo = br.ReadBytes(_blockSize);
+
+                foreach (byte x in xo)
+                {
+                    tempString += x.ToString("X2");
+                }
+
+                verdelingBestandBlocks.Add(tempString);
+                j += _blockSize;
+                tempString = "";
+            }
+
+            return verdelingBestandBlocks;
+        }
+
+        private void setBlocks(List<string> verdelingBestandBlocks)
+        {
+            string tempString;
+            // set first block
+            _fileBinary._fileMetaData.Hexadecimal = verdelingBestandBlocks[0];
+
+            // set second block
+            // _fileBinary._fileMetaData.Hexadecimal = readFile(dlg, 0);
+            _fileBinary._fileDirectory.Hexadecimal = verdelingBestandBlocks[1];
+
+            // set third block to 12th block: file table
+            for (int k = 2; k < 12; k++)
+            {
+                _fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[k]);
+            }
+
+            // setIndexTabel
+            tempString = "";
+            for (int x = 0; x < _fileBinary._fileTable.verdelingBestandBlocks[0].Length; x++)
+            {
+
+                if (x != 0 && x % 8 == 0)
+                {
+                    _fileBinary._fileTable.indexFileTable.Add(tempString);
+                    tempString = "";
+                }
+
+                tempString += _fileBinary._fileTable.verdelingBestandBlocks[0][x];
+            }
+
+            // set other blocks: file data
+            for (int k = 12; k < verdelingBestandBlocks.Count; k++)
+            {
+                _fileBinary._fileData.fileData.Add(verdelingBestandBlocks[k]);
+            }
+        }
     }
 }

@@ -37,12 +37,14 @@
             <Button x:Name="CarveFile"
                     Command="ApplicationCommands.Save"
                     Content="Carve File" 
-                    Margin="0 10" />
+                    Margin="0 10" 
+                    IsEnabled="False"/>
         </StackPanel>
         <StatusBar DockPanel.Dock="Bottom">
             <TextBlock x:Name="status" 
                        Text="Nothing has been loaded" 
-                       TextWrapping="Wrap"/>
+                       TextWrapping="Wrap"
+                       Padding="1 0"/>
         </StatusBar>
     </DockPanel>
 </Window>

@@ -13,6 +13,7 @@ namespace JPG_File_Carver
 {
     class DocumentManager
     {
+        // 
         private string _currentFile;
 
         private FileBinary _fileBinary;
@@ -24,6 +25,10 @@ namespace JPG_File_Carver
             _fileBinary = new FileBinary();
         }
 
+        /// <summary>
+        /// This method opens the document.
+        /// </summary>
+        /// <returns>Returns the status of the process of opening the document as a boolean value.</returns>
         public bool OpenDocument()
         {
             OpenFileDialog dlg = new OpenFileDialog()
@@ -112,6 +117,10 @@ namespace JPG_File_Carver
             return false;
         }
 
+        /// <summary>
+        /// This method carves the document.
+        /// </summary>
+        /// <returns>Returns the status of the process of carving the document as a boolean value. </returns>
         public bool CarveDocument()
         {
             // Carve File
@@ -122,13 +131,11 @@ namespace JPG_File_Carver
             
             while (pointer != 0)
             {
-                //
                 fileCarved += _fileBinary._fileData.fileData[pointer-12];
-
-                // ga terug naar fileTable en ga daar vanuit index 0 naar de pointer
                 pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
             }
 
+            // To Do: file checking = begins with FF D8 && ENDS WITH FF D9? true+save document + open Document(folder) : false
             return true;
         }
         // Save document

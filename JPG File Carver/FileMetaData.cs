@@ -8,7 +8,19 @@ namespace JPG_File_Carver
 {
     class FileMetaData
     {
-        public string Hexadecimal;
+        private string _Hexadecimal;
+        public string Hexadecimal
+        {
+            get { return _Hexadecimal; }
+
+            set
+            {
+                _Hexadecimal = value;
+
+                // set other variabels
+
+            }
+        }
         public int BlockSize;
         public int BlockMetaData;
         public int SizeFileDirectory;

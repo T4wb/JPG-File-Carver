@@ -72,17 +72,47 @@ namespace JPG_File_Carver
             // Carve File
             //int firstBlock = 234;
             //string byteAdress = _fileBinary._fileTable.indexFileTable[234];
-            string fileCarved = "";
+            string carvedData = "";
             int pointer = 234; // To do: get from FileMetaData
             
             while (pointer != 0)
             {
-                fileCarved += _fileBinary._fileData.fileData[pointer-12];
+                carvedData += _fileBinary._fileData.fileData[pointer-12];
                 pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
             }
 
+            if (SaveDocumentAs(carvedData))
+            {
+                return true;
+            }
+
+            return false;
+            
+        }
+
+        public bool SaveDocumentAs(string carvedData)
+        {
+            // save data into .txt
+            SaveFileDialog dlg = new SaveFileDialog()
+            {
+                Filter = "JPEG | *.jpg"
+            };
+
             // To Do: file checking = begins with FF D8 && ENDS WITH FF D9? true+save document + open Document(folder) : false
-            return true;
+            if (dlg.ShowDialog() == true)
+            {
+                _currentFile = dlg.FileName;
+                //byte[] data = System.Text.Encoding.ASCII.GetBytes(carvedData);
+                File.WriteAllText(@_currentFile, carvedData); // doesn't work => export as binary not as tex
+
+                
+                // To do: export offsets into .txt file with name of dlg.FileName
+            }
+
+            return false;
+
+
+            
         }
 
         private static string getBlockSize(BinaryReader br)

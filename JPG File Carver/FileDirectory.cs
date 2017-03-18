@@ -8,7 +8,19 @@ namespace JPG_File_Carver
 {
     class FileDirectory
     {
-        public string Hexadecimal;
+        private string _Hexadecimal;
+        public string Hexadecimal
+        {
+            get { return _Hexadecimal; }
+
+            set
+            {
+                _Hexadecimal = value;
+
+                // set other variabels
+
+            }
+        }
         public int IndexFileTable;
         public int SizeFile;
         public int SizeName;

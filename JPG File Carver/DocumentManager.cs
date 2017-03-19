@@ -72,20 +72,25 @@ namespace JPG_File_Carver
             // Carve File
             //int firstBlock = 234;
             //string byteAdress = _fileBinary._fileTable.indexFileTable[234];
-            string carvedData = "";
+            List<byte[]> carvedData = new List<byte[]>();
+
             int pointer = 234; // To do: get from FileMetaData
             
             while (pointer != 0)
             {
-                carvedData += _fileBinary._fileData.fileData[pointer-12];
+                carvedData.Add(_fileBinary._fileData.fileData[pointer-12]);
+                pointer = BitConverter.ToInt32(
+                    BitConverter.IsLittleEndian
+                    ? _fileBinary._fileTable.indexFileTable[pointer].Reverse().ToArray()
+                    : _fileBinary._fileTable.indexFileTable[pointer], 0);
                 //pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
             }
 
             // Save file
-            if (SaveDocumentAs(carvedData))
-            {
-                return true;
-            }
+            //if (SaveDocumentAs(carvedData))
+            //{
+            //    return true;
+            //}
 
             return false;
         }
@@ -95,7 +100,7 @@ namespace JPG_File_Carver
         /// </summary>
         /// <param name="carvedData">This is the carved data in binary.</param>
         /// <returns></returns>
-        public bool SaveDocumentAs(string carvedData)
+        public bool SaveDocumentAs(byte[] carvedData)
         {
             // save data into .txt
             SaveFileDialog dlg = new SaveFileDialog()

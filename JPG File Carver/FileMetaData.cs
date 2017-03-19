@@ -8,19 +8,35 @@ namespace JPG_File_Carver
 {
     class FileMetaData
     {
-        private string _Hexadecimal;
-        public string Hexadecimal
+        //private string _Hexadecimal;
+        //public string Hexadecimal
+        //{
+        //    get { return _Hexadecimal; }
+
+        //    set
+        //    {
+        //        _Hexadecimal = value;
+
+        //        // set other variabels
+
+        //    }
+        //}
+        private byte[] _Hexadecimal;
+        public byte[] Hexadecimal
         {
             get { return _Hexadecimal; }
+        }
 
-            set
+        public void setHexadecimal(byte[] value)
+        {
+            _Hexadecimal = new byte[value.Length];
+
+            for (int i = 0; i < value.Length; i++)
             {
-                _Hexadecimal = value;
-
-                // set other variabels
-
+                _Hexadecimal[i] = value[i];
             }
         }
+
         public int BlockSize;
         public int BlockMetaData;
         public int SizeFileDirectory;

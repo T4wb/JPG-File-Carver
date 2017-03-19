@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,15 +44,14 @@ namespace JPG_File_Carver
                 // read file in binary
                 using (Stream stream = dlg.OpenFile())
                 {
-                    // gets blocksize in bytes
+                    // get blocksize in bytes and set to int
                     BinaryReader br = new BinaryReader(stream);
-                    string hexvalue = getBlockSize(br);
+                    _blockSize = getBlockSize(br);
 
-                    // set the blocksize
-                    _blockSize = int.Parse(hexvalue, System.Globalization.NumberStyles.HexNumber);
-
-                    // split fileblocks into the the value of _blocksize 
-                    List<string> formattedBlocks = splitBlocks(stream, br);
+                    // split fileblocks into the the value of _blocksize
+                    //List<string> formattedBlocks = splitBlocks(stream, br);
+                    byte[][] formattedBlocks = splitBlocks(stream, br);
+                    // bytes[] formattedBlocks = splitBlocks(stream, br);
 
                     // set the splitted blocks into _fileBinary
                     setBlocks(formattedBlocks);
@@ -66,7 +66,7 @@ namespace JPG_File_Carver
         /// <summary>
         /// This method carves the document.
         /// </summary>
-        /// <returns>Returns the status of the process of carving the document as a boolean value. </returns>
+        /// <returns>Returns the status of the process of carving the document as a boolean value.</returns>
         public bool CarveDocument()
         {
             // Carve File
@@ -78,18 +78,23 @@ namespace JPG_File_Carver
             while (pointer != 0)
             {
                 carvedData += _fileBinary._fileData.fileData[pointer-12];
-                pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
+                //pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
             }
 
+            // Save file
             if (SaveDocumentAs(carvedData))
             {
                 return true;
             }
 
             return false;
-            
         }
 
+        /// <summary>
+        /// This method saves the document.
+        /// </summary>
+        /// <param name="carvedData">This is the carved data in binary.</param>
+        /// <returns></returns>
         public bool SaveDocumentAs(string carvedData)
         {
             // save data into .txt
@@ -103,90 +108,98 @@ namespace JPG_File_Carver
             {
                 _currentFile = dlg.FileName;
                 //byte[] data = System.Text.Encoding.ASCII.GetBytes(carvedData);
-                File.WriteAllText(@_currentFile, carvedData); // doesn't work => export as binary not as tex
+                ;
+                int hello = int.Parse(carvedData[3]+"", NumberStyles.HexNumber);
 
-                
+                //Convert.ToByte
+                File.WriteAllText(@_currentFile, carvedData.ToString()); // doesn't work => export as binary not as text
+
                 // To do: export offsets into .txt file with name of dlg.FileName
+                return true;
             }
 
             return false;
-
-
-            
         }
 
-        private static string getBlockSize(BinaryReader br)
+        private int getBlockSize(BinaryReader br)
         {
-            string hexvalue = null;
-            for (int i = 0x00000; i < 0x00004; i++)
-            {
-                br.BaseStream.Position = i;
-                string temp = br.ReadByte().ToString("X2");
+            byte[] blockSize = new byte[4];
 
-                hexvalue += temp;
+            for (int i = 0; i < 4; i++)
+            {
+                blockSize[i] = br.ReadByte();
             }
 
-            return hexvalue;
+            int x = BitConverter.ToInt32(
+                BitConverter.IsLittleEndian
+                   ? blockSize.Reverse().ToArray()
+                   : blockSize, 0);
+
+            return x;
         }
 
-        private List<string> splitBlocks(Stream stream, BinaryReader br)
+        private byte[][] splitBlocks(Stream stream, BinaryReader br)
         {
-            List<string> verdelingBestandBlocks = new List<string>();
-            string tempString = "";
+            // 
+            long totalBlocks = stream.Length / _blockSize;
+            byte[][] verdelingBestandBlocks = new byte[totalBlocks][];
+
+            for (int i = 0; i < totalBlocks; i++)
+            {
+                verdelingBestandBlocks[i] = new byte[_blockSize];
+            }
+
+            // 
             br.BaseStream.Position = 0;
 
-            int j;
-            for (j = 0; j < stream.Length; j++)
+            for (int i = 0; i < totalBlocks; i++)
             {
-                byte[] xo = br.ReadBytes(_blockSize);
-
-                foreach (byte x in xo)
+                for (int j = 0; j < _blockSize; j++)
                 {
-                    tempString += x.ToString("X2");
+                    verdelingBestandBlocks[i][j] = br.ReadByte();
                 }
-
-                verdelingBestandBlocks.Add(tempString);
-                j += _blockSize;
-                tempString = "";
             }
 
             return verdelingBestandBlocks;
         }
 
-        private void setBlocks(List<string> verdelingBestandBlocks)
+        private void setBlocks(byte[][] verdelingBestandBlocks)
         {
-            string tempString;
             // set first block
-            _fileBinary._fileMetaData.Hexadecimal = verdelingBestandBlocks[0];
+            _fileBinary._fileMetaData.setHexadecimal(verdelingBestandBlocks[0]);
 
             // set second block
-            // _fileBinary._fileMetaData.Hexadecimal = readFile(dlg, 0);
-            _fileBinary._fileDirectory.Hexadecimal = verdelingBestandBlocks[1];
+            _fileBinary._fileDirectory.setHexadecimal(verdelingBestandBlocks[1]);
 
-            // set third block to 12th block: file table
-            for (int k = 2; k < 12; k++)
+            // set third block to 12th block: file table // Refactor: shift to FileTable Class
+
+            for (int k = 2; k < 12; k++) // shift to class? => looping part? pass jagged array
             {
-                _fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[k]);
+                _fileBinary._fileTable.setVerdelingFileTableBlocks(verdelingBestandBlocks[k]); // 4096 bytes of i.e. [1,2,3,4] 
+                //_fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[k]);
             }
 
-            // setIndexTabel
-            tempString = "";
-            for (int x = 0; x < _fileBinary._fileTable.verdelingBestandBlocks[0].Length; x++)
-            {
+            // setIndexTabel // Refactor: shift to FileTable Class
+            List<byte> tempBytes = new List<byte>();
+            int count = 0;
 
-                if (x != 0 && x % 8 == 0)
+            for (int i = 0; i < _fileBinary._fileTable.VerdelingFileTableBlocks[0].Length; i++)
+            {
+                if (i != 0 && i % 8 == 0)
                 {
-                    _fileBinary._fileTable.indexFileTable.Add(tempString);
-                    tempString = "";
+                    _fileBinary._fileTable.indexFileTable.Add(tempBytes.ToArray());
+                    count = 0;
+                    tempBytes.Clear();
                 }
 
-                tempString += _fileBinary._fileTable.verdelingBestandBlocks[0][x];
+                tempBytes.Add(verdelingBestandBlocks[0][count]);
+                count++;
             }
 
-            // set other blocks: file data
-            for (int k = 12; k < verdelingBestandBlocks.Count; k++)
+            //// set other blocks: file data // Refactor: shift to FileData Class
+            for (int i = 12; i < verdelingBestandBlocks.Length; i++)
             {
-                _fileBinary._fileData.fileData.Add(verdelingBestandBlocks[k]);
+                _fileBinary._fileData.fileData.Add(verdelingBestandBlocks[i]);
             }
         }
     }

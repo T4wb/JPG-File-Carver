@@ -49,9 +49,7 @@ namespace JPG_File_Carver
                     _blockSize = getBlockSize(br);
 
                     // split fileblocks into the the value of _blocksize
-                    //List<string> formattedBlocks = splitBlocks(stream, br);
                     byte[][] formattedBlocks = splitBlocks(stream, br);
-                    // bytes[] formattedBlocks = splitBlocks(stream, br);
 
                     // set the splitted blocks into _fileBinary
                     setBlocks(formattedBlocks);
@@ -70,8 +68,6 @@ namespace JPG_File_Carver
         public bool CarveDocument()
         {
             // Carve File
-            //int firstBlock = 234;
-            //string byteAdress = _fileBinary._fileTable.indexFileTable[234];
             List<byte[]> carvedData = new List<byte[]>();
 
             int pointer = 234; // To do: get from FileMetaData
@@ -83,26 +79,24 @@ namespace JPG_File_Carver
                     BitConverter.IsLittleEndian
                     ? _fileBinary._fileTable.indexFileTable[pointer].Reverse().ToArray()
                     : _fileBinary._fileTable.indexFileTable[pointer], 0);
-                //pointer = int.Parse(_fileBinary._fileTable.indexFileTable[pointer], System.Globalization.NumberStyles.HexNumber);
             }
 
             // Save file
-            //if (SaveDocumentAs(carvedData))
-            //{
-            //    return true;
-            //}
+            if (SaveDocumentAs(carvedData))
+            {
+                return true;
+            }
 
             return false;
         }
 
         /// <summary>
-        /// This method saves the document.
+        /// This method saves the document in JPG format.
         /// </summary>
         /// <param name="carvedData">This is the carved data in binary.</param>
-        /// <returns></returns>
-        public bool SaveDocumentAs(byte[] carvedData)
+        /// <returns>Return a boolean value of the status of the saving process.</returns>
+        public bool SaveDocumentAs(List<byte[]> carvedData)
         {
-            // save data into .txt
             SaveFileDialog dlg = new SaveFileDialog()
             {
                 Filter = "JPEG | *.jpg"
@@ -112,18 +106,31 @@ namespace JPG_File_Carver
             if (dlg.ShowDialog() == true)
             {
                 _currentFile = dlg.FileName;
-                //byte[] data = System.Text.Encoding.ASCII.GetBytes(carvedData);
-                ;
-                int hello = int.Parse(carvedData[3]+"", NumberStyles.HexNumber);
 
-                //Convert.ToByte
-                File.WriteAllText(@_currentFile, carvedData.ToString()); // doesn't work => export as binary not as text
+                // 
+                List<byte> bytesTemp = new List<byte>();
+
+                foreach (byte[] bytearr in carvedData)
+                {
+                    foreach (byte oneByte in bytearr)
+                    {
+                        bytesTemp.Add(oneByte);
+                    }
+                }
+
+                // 
+                File.WriteAllBytes(_currentFile, bytesTemp.ToArray());
 
                 // To do: export offsets into .txt file with name of dlg.FileName
                 return true;
             }
 
             return false;
+        }
+
+        public string getCurrentFile()
+        {
+            return _currentFile;
         }
 
         private int getBlockSize(BinaryReader br)
@@ -145,7 +152,7 @@ namespace JPG_File_Carver
 
         private byte[][] splitBlocks(Stream stream, BinaryReader br)
         {
-            // 
+            // creates amountvalue of totalBlocks with size _blocksize
             long totalBlocks = stream.Length / _blockSize;
             byte[][] verdelingBestandBlocks = new byte[totalBlocks][];
 
@@ -181,7 +188,6 @@ namespace JPG_File_Carver
             for (int k = 2; k < 12; k++) // shift to class? => looping part? pass jagged array
             {
                 _fileBinary._fileTable.setVerdelingFileTableBlocks(verdelingBestandBlocks[k]); // 4096 bytes of i.e. [1,2,3,4] 
-                //_fileBinary._fileTable.verdelingBestandBlocks.Add(verdelingBestandBlocks[k]);
             }
 
             // setIndexTabel // Refactor: shift to FileTable Class
@@ -190,14 +196,13 @@ namespace JPG_File_Carver
 
             for (int i = 0; i < _fileBinary._fileTable.VerdelingFileTableBlocks[0].Length; i++)
             {
-                if (i != 0 && i % 8 == 0)
+                if (i != 0 && i % 4 == 0)
                 {
                     _fileBinary._fileTable.indexFileTable.Add(tempBytes.ToArray());
-                    count = 0;
                     tempBytes.Clear();
                 }
 
-                tempBytes.Add(verdelingBestandBlocks[0][count]);
+                tempBytes.Add(_fileBinary._fileTable.VerdelingFileTableBlocks[0][count]);
                 count++;
             }
 

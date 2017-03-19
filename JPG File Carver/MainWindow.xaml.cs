@@ -1,5 +1,23 @@
-﻿using System;
+﻿/*
+ * Dear friend. Please take it into consideration that this program is not robust. 
+ * Reasons:
+ * # It's missing some essential (i.e. file reading/saving) exception handlers.
+ * # Some elements are hardcoded ((i.e. init. value of pointer). This has been done to reducing the programming time.
+ * # Some variables in the object classes (other than DocumentManager) are not used as assigning values may increase the programming time, unnecessarily. 
+ * # Next, this is not suited for dumpfiles where the File table is missing or the structure is not as follows: 
+ *  Blocks:
+ *  1          = File MetaData
+ *  2          = File Directory
+ *  3 - 11     = FileTable
+ *  12 - EOFB* = File Data (EOFB = End Of File Blocks)
+ * 
+ * 
+ * Creater: T4wb
+ */
+
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,6 +59,8 @@ namespace JPG_File_Carver
             else
             {
                 status.Text = "I couldn't load the file. Is it in use?";
+
+                MessageBox.Show("Ouch... I couldn't load the file. Is it in use?");
             }
         }
 
@@ -52,10 +72,16 @@ namespace JPG_File_Carver
             if (_documentManger.CarveDocument())
             {
                 status.Text = "JPG file has been carved";
+
+                MessageBox.Show("JPG file has been carved. Let's open it!");
+
+                Process.Start(@_documentManger.getCurrentFile());
             }
             else
             {
                 status.Text = "I couldn't carve the file :(";
+
+                MessageBox.Show("I couldn't carve the file. Please forgive me :(.");
             }
 
             OpenFile.IsEnabled = true;

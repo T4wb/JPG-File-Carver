@@ -9,18 +9,6 @@ namespace JPG_File_Carver
     class FileDirectory
     {
         private byte[] _Hexadecimal;
-        //public string Hexadecimal
-        //{
-        //    get { return _Hexadecimal; }
-
-        //    set
-        //    {
-        //        _Hexadecimal = value;
-
-        //        // set other variabels
-
-        //    }
-        //}
         public byte[] Hexadecimal
         {
             get { return _Hexadecimal; }

@@ -58,9 +58,9 @@ namespace JPG_File_Carver
             }
             else
             {
-                status.Text = "I couldn't load the file. Is it in use?";
+                status.Text = "I couldn't load the file.";
 
-                MessageBox.Show("Ouch... I couldn't load the file. Is it in use?");
+                MessageBox.Show("Ouch... I couldn't load the file. Is it in use or did you close the previous window?");
             }
         }
 
